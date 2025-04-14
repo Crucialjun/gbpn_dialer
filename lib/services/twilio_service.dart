@@ -143,50 +143,124 @@ class TwilioService {
 
   /// Setup listeners for Twilio events
   void _setupListeners(BuildContext context) {
+    // Listen for Twilio Call Events
     TwilioVoice.instance.callEventsListener.listen((event) async {
       switch (event) {
         case CallEvent.incoming:
           log("Incoming Call detected!");
-          final uuid = Uuid().v4();
-          final params = CallKitParams(
-            id: uuid,
-            nameCaller: "Unknown Caller",
-            handle: "Unknown",
-            type: 0, // 0 for audio call
-            ios: IOSParams(
-              iconName: 'AppIcon',
-              supportsVideo: false,
-            ),
-            android: AndroidParams(
-              isCustomNotification: true,
-              isShowLogo: true,
-              ringtonePath: 'assets/sounds/phone-call.mp3',
-              backgroundColor: '#0955fa',
-              actionColor: '#4CAF50',
-            ),
-          );
-          await FlutterCallkitIncoming.showCallkitIncoming(params);
+          if (context.mounted) {
+            showIncomingCallScreen(context);
+          }
           break;
         case CallEvent.connected:
           log("Call Connected!");
-          // Ensure no redirection to the app when the call is connected
+          Logger().i("Twillio Call Event: $event");
+          _stopRingtone();
+          CallKitParams callKitParams = CallKitParams(
+            id: Uuid().v4(),
+        
+            appName: 'Callkit',
+            avatar: 'https://i.pravatar.cc/100',
+            handle: '0123456789',
+            type: 0,
+            textAccept: 'Accept',
+            textDecline: 'Decline',
+            missedCallNotification: NotificationParams(
+              showNotification: true,
+              isShowCallback: true,
+              subtitle: 'Missed call',
+              callbackText: 'Call back',
+            ),
+            callingNotification: const NotificationParams(
+              showNotification: true,
+              isShowCallback: true,
+              subtitle: 'Calling...',
+              callbackText: 'Hang Up',
+            ),
+            duration: 30000,
+            extra: <String, dynamic>{'userId': '1a2b3c4d'},
+            headers: <String, dynamic>{
+              'apiKey': 'Abc@123!',
+              'platform': 'flutter'
+            },
+            android: const AndroidParams(
+                isCustomNotification: true,
+                isShowLogo: false,
+                logoUrl: 'https://i.pravatar.cc/100',
+                ringtonePath: 'system_ringtone_default',
+                backgroundColor: '#0955fa',
+                backgroundUrl: 'https://i.pravatar.cc/500',
+                actionColor: '#4CAF50',
+                textColor: '#ffffff',
+                incomingCallNotificationChannelName: "Incoming Call",
+                missedCallNotificationChannelName: "Missed Call",
+                isShowCallID: false),
+            ios: IOSParams(
+              iconName: 'CallKitLogo',
+              handleType: 'generic',
+              supportsVideo: true,
+              maximumCallGroups: 2,
+              maximumCallsPerCallGroup: 1,
+              audioSessionMode: 'default',
+              audioSessionActive: true,
+              audioSessionPreferredSampleRate: 44100.0,
+              audioSessionPreferredIOBufferDuration: 0.005,
+              supportsDTMF: true,
+              supportsHolding: true,
+              supportsGrouping: false,
+              supportsUngrouping: false,
+              ringtonePath: 'system_ringtone_default',
+            ),
+          );
+          await FlutterCallkitIncoming.showCallkitIncoming(
+              callKitParams); // Stop ringtone when call is connected
+
           break;
         case CallEvent.callEnded:
           log("Call Ended!");
-          // Ensure no redirection to the app when the call ends
+          _stopRingtone(); // Stop ringtone when call ends
+          _playEndCallSound(); // Play end call sound
+          break;
+        case CallEvent.ringing:
+          _isPlaying = true;
+          log("Phone is Ringing!");
+          _playRingtone(); // Play ringtone when phone is ringing
+          break;
+        case CallEvent.reconnecting:
+          log("Reconnecting Call...");
+          break;
+        case CallEvent.declined:
+          log("Call Declined");
+          _stopRingtone(); // Stop ringtone when call is declined
+          _playEndCallSound(); // Play end call sound when call is declined
+          break;
+        case CallEvent.speakerOn:
+        case CallEvent.speakerOff:
+          log("🔊 Speaker Event: $event");
+          if (_isCallConnected) break;
+          _playRingtone();
           break;
         default:
           log("Other Event: $event");
+          _isPlaying = false;
       }
     });
+  }
+
+  /// Show Incoming Call Screen
+  void showIncomingCallScreen(BuildContext context) {
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) =>
+    //         IncomingCallScreen(callerName: "GBPN Dialer Testing"),
+    //   ),
+    // );
   }
 
   /// Answer the Call
   Future<void> answerCall() async {
     await TwilioVoice.instance.call.answer();
-    _isPlaying = false; // Stop ringtone when call is answered
-    await _stopRingtone(); // Ensure ringtone is stopped when call is answered
-    log("Call Answered!");
   }
 
   /// Decline the Call
@@ -222,36 +296,6 @@ class TwilioService {
       log("Playing end call sound");
     } catch (e) {
       log("Error playing end call sound: $e");
-    }
-  }
-
-  /// Show native call screen using CallKit
-  Future<void> showNativeCallScreen(
-      String uuid, String callerName, String handle) async {
-    final params = CallKitParams(
-      id: uuid,
-      nameCaller: callerName,
-      handle: handle,
-      type: 0, // 0 for audio call
-      ios: IOSParams(
-        iconName: 'AppIcon',
-        supportsVideo: false,
-      ),
-      android: AndroidParams(
-        isCustomNotification: true,
-        isShowLogo: true,
-        ringtonePath: 'assets/sounds/phone-call.mp3',
-        backgroundColor: '#0955fa',
-        backgroundUrl: 'assets/images/home_background.jpg',
-        actionColor: '#4CAF50',
-      ),
-    );
-
-    try {
-      await FlutterCallkitIncoming.showCallkitIncoming(params);
-      log("Native call screen displayed");
-    } catch (e) {
-      log("Error showing native call screen: $e");
     }
   }
 
