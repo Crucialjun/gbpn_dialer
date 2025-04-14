@@ -50,32 +50,31 @@ import flutter_callkit_incoming
             return
         }
 
-        // Extract payload data
-        let id = payload.dictionaryPayload["twi_message_id"] as? String ?? ""
-        let nameCaller = payload.dictionaryPayload["twi_from"] as? String ?? "Unknown Caller"
-        let handle = payload.dictionaryPayload["twi_to"] as? String ?? ""
-        let isVideo = payload.dictionaryPayload["isVideo"] as? Bool ?? false
-        let callSid = payload.dictionaryPayload["twi_call_sid"] as? String ?? ""
-        let accountSid = payload.dictionaryPayload["twi_account_sid"] as? String ?? ""
+         // 1. Extract call SID, caller ID, etc. from payload
+        if let callSID = payload.userInfo["callSID"] as? String,
+           let callerID = payload.userInfo["callerID"] as? String {
+            // 2. Create a CXCallController
+            let callController = CXCallController()
+            // 3. Report the incoming call to CallKit
+            let reportOptions = CXCallUpdateOptions()
+            reportOptions.includeCallInfo = true // Optional: Include call details
 
-        // Log extracted data for debugging
-        print("Call ID: \(id)")
-        print("Caller: \(nameCaller)")
-        print("Handle: \(handle)")
-        print("Is Video Call: \(isVideo)")
-        print("Call SID: \(callSid)")
-        print("Account SID: \(accountSid)")
-
-        // Prepare data for CallKit
-        let data = flutter_callkit_incoming.Data(id: id, nameCaller: nameCaller, handle: handle, type: isVideo ? 1 : 0)
-        data.extra = [
-            "callSid": callSid,
-            "accountSid": accountSid,
-            "platform": "ios"
-        ]
-
-        // Show incoming call
-        SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(data, fromPushKit: true)
+            let update = CXCallUpdate(handle: CXHandle(type: .phoneNumber, value: callerID),
+                                     connection: nil,
+                                     callInfo: CXCallInfo(),
+                                     localizedCallInfo: "Incoming call from \(callerID)",
+                                     options: reportOptions)
+            // 4. Report the call
+            let reportCallRequest = CXReportCallRequest(callUUID: UUID(), update: update)
+            callController.reportCall(with: reportCallRequest) { error in
+                if let error = error {
+                    print("Error reporting call: \(error)")
+                } else {
+                    print("Call reported to CallKit successfully")
+                }
+            }
+        }
+    }
 
         // Ensure completion is called
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
