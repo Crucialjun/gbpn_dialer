@@ -9,6 +9,7 @@ import 'package:gbpn_dealer/screens/permissions/permissions_block.dart';
 import 'package:gbpn_dealer/services/storage_service.dart';
 import 'package:gbpn_dealer/services/twilio_service.dart';
 import 'package:gbpn_dealer/utils/utils.dart';
+import 'package:logger/logger.dart';
 import 'package:twilio_voice/models/call_event.dart';
 
 import '../contacts/contact_screen.dart';
@@ -120,6 +121,7 @@ class _MainScreenViewState extends State<MainScreenView> {
           break;
         case CallEvent.incoming:
           log('Incoming call');
+          Logger().i("Twillio Incoming Call Event: $event");
           break;
         default:
           break;
