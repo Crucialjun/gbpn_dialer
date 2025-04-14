@@ -4,6 +4,7 @@ import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:logger/logger.dart';
 import 'package:twilio_voice/twilio_voice.dart';
 
 class TwilioService {
@@ -147,6 +148,7 @@ class TwilioService {
           break;
         case CallEvent.connected:
           log("Call Connected!");
+          Logger().i("Twillio Call Event: $event");
           _stopRingtone(); // Stop ringtone when call is connected
           break;
         case CallEvent.callEnded:
