@@ -44,7 +44,7 @@ import flutter_callkit_incoming
 
      // Handle incoming pushes
     @objc(pushRegistry:didReceiveIncomingPushWithPayload:forType:withCompletionHandler:) func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType, completion: @escaping () -> Void) {
-        print("didReceiveIncomingPushWith")
+        print("payload \(payload.dictionaryPayload)")
         guard type == .voIP else { return }
         
         let id = payload.dictionaryPayload["id"] as? String ?? ""
