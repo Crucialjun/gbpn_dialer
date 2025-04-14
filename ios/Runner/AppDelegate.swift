@@ -44,24 +44,13 @@ import flutter_callkit_incoming
 
      // Handle incoming pushes
     @objc(pushRegistry:didReceiveIncomingPushWithPayload:forType:withCompletionHandler:) func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType, completion: @escaping () -> Void) {
-        print("payload \(payload.dictionaryPayload)")
-        guard type == .voIP else { return }
-        
-        let id = payload.dictionaryPayload["id"] as? String ?? ""
-        let nameCaller = payload.dictionaryPayload["nameCaller"] as? String ?? ""
-        let handle = payload.dictionaryPayload["handle"] as? String ?? ""
-        let isVideo = payload.dictionaryPayload["isVideo"] as? Bool ?? false
-        
-        let data = flutter_callkit_incoming.Data(id: id, nameCaller: nameCaller, handle: handle, type: isVideo ? 1 : 0)
-        //set more data
-        data.extra = ["user": "abc@123", "platform": "ios"]
-        //data.iconName = ...
-        //data.....
-        SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(data, fromPushKit: true)
-        
-        //Make sure call completion()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            completion()
+         let uuid = UUID().uuidString
+        let caller = "Twilio User"
+
+        flutterChannel?.invokeMethod("incoming", arguments: [
+            "uuid": uuid,
+            "callerName": caller
+        ])
         }
     }
 
