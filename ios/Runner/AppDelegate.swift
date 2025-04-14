@@ -9,7 +9,7 @@ import flutter_callkit_incoming
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
-  let pushRegistry = PKPushRegistry(queue: DispatchQueue.main)
+  
 
 
   override func application(
@@ -19,8 +19,10 @@ import flutter_callkit_incoming
     FirebaseApp.configure()
     GeneratedPluginRegistrant.register(with: self)
     // Register for VoIP push
-        pushRegistry.delegate = self
-    pushRegistry.desiredPushTypes = [.voIP]
+        let mainQueue = DispatchQueue.main
+        let voipRegistry: PKPushRegistry = PKPushRegistry(queue: mainQueue)
+        voipRegistry.delegate = self
+        voipRegistry.desiredPushTypes = [..voIP]
 
         
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
