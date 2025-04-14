@@ -155,7 +155,7 @@ class TwilioService {
               avatar: 'https://i.pravatar.cc/100',
               handle: '0123456789',
               type: 0,
-              textAccept: 'Accept',
+              textAccept: 'GBPN Accept',
               textDecline: 'Decline',
               missedCallNotification: NotificationParams(
                 showNotification: true,
@@ -166,7 +166,7 @@ class TwilioService {
               callingNotification: const NotificationParams(
                 showNotification: true,
                 isShowCallback: true,
-                subtitle: 'Calling...',
+                subtitle: 'GBPN Calling...',
                 callbackText: 'Hang Up',
               ),
               duration: 30000,
@@ -190,17 +190,6 @@ class TwilioService {
               ios: IOSParams(
                 iconName: 'CallKitLogo',
                 handleType: 'generic',
-                supportsVideo: true,
-                maximumCallGroups: 2,
-                maximumCallsPerCallGroup: 1,
-                audioSessionMode: 'default',
-                audioSessionActive: true,
-                audioSessionPreferredSampleRate: 44100.0,
-                audioSessionPreferredIOBufferDuration: 0.005,
-                supportsDTMF: true,
-                supportsHolding: true,
-                supportsGrouping: false,
-                supportsUngrouping: false,
                 ringtonePath: 'system_ringtone_default',
               ),
             );
