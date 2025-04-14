@@ -19,7 +19,7 @@ import flutter_callkit_incoming
         let mainQueue = DispatchQueue.main
         let voipRegistry: PKPushRegistry = PKPushRegistry(queue: mainQueue)
         voipRegistry.delegate = self
-        voipRegistry.desiredPushTypes = [PKPushType..voIP]
+        voipRegistry.desiredPushTypes = [PKPushType.voIP]
 
         
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
