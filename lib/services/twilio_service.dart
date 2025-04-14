@@ -22,6 +22,7 @@ class TwilioService {
   final FlutterSoundPlayer _endCallSoundPlayer = FlutterSoundPlayer();
   bool _isPlaying = false;
   bool _isCallConnected = false;
+  final String _currentUUID = Uuid().v4();
 
   factory TwilioService() {
     return _instance;
@@ -148,17 +149,10 @@ class TwilioService {
       switch (event) {
         case CallEvent.incoming:
           log("Incoming Call detected!");
-          if (context.mounted) {
-            showIncomingCallScreen(context);
-          }
-          break;
-        case CallEvent.connected:
-          log("Call Connected!");
           Logger().i("Twillio Call Event: $event");
           _stopRingtone();
           CallKitParams callKitParams = CallKitParams(
-            id: Uuid().v4(),
-        
+            id: _currentUUID,
             appName: 'Callkit',
             avatar: 'https://i.pravatar.cc/100',
             handle: '0123456789',
@@ -212,8 +206,11 @@ class TwilioService {
               ringtonePath: 'system_ringtone_default',
             ),
           );
-          await FlutterCallkitIncoming.showCallkitIncoming(
-              callKitParams); // Stop ringtone when call is connected
+          await FlutterCallkitIncoming.showCallkitIncoming(callKitParams);
+          break;
+        case CallEvent.connected:
+          log("Call Connected!");
+          // Stop ringtone when call is connected
 
           break;
         case CallEvent.callEnded:
