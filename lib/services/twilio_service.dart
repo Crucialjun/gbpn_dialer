@@ -9,6 +9,7 @@ import 'package:flutter_callkit_incoming/entities/ios_params.dart';
 import 'package:flutter_callkit_incoming/entities/notification_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:gbpn_dealer/screens/incoming_screen/incoming_call_screen.dart';
 import 'package:logger/logger.dart';
 import 'package:twilio_voice/twilio_voice.dart';
 import 'package:uuid/uuid.dart';
@@ -149,51 +150,7 @@ class TwilioService {
         case CallEvent.incoming:
           log("Incoming Call detected!");
           if (context.mounted) {
-            CallKitParams callKitParams = CallKitParams(
-              id: Uuid().v4(),
-              appName: 'Callkit',
-              avatar: 'https://i.pravatar.cc/100',
-              handle: '0123456789',
-              type: 0,
-              textAccept: 'GBPN Accept',
-              textDecline: 'Decline',
-              missedCallNotification: NotificationParams(
-                showNotification: true,
-                isShowCallback: true,
-                subtitle: 'Missed call',
-                callbackText: 'Call back',
-              ),
-              callingNotification: const NotificationParams(
-                showNotification: true,
-                isShowCallback: true,
-                subtitle: 'GBPN Calling...',
-                callbackText: 'Hang Up',
-              ),
-              duration: 30000,
-              extra: <String, dynamic>{'userId': '1a2b3c4d'},
-              headers: <String, dynamic>{
-                'apiKey': 'Abc@123!',
-                'platform': 'flutter'
-              },
-              android: const AndroidParams(
-                  isCustomNotification: true,
-                  isShowLogo: false,
-                  logoUrl: 'https://i.pravatar.cc/100',
-                  ringtonePath: 'system_ringtone_default',
-                  backgroundColor: '#0955fa',
-                  backgroundUrl: 'https://i.pravatar.cc/500',
-                  actionColor: '#4CAF50',
-                  textColor: '#ffffff',
-                  incomingCallNotificationChannelName: "Incoming Call",
-                  missedCallNotificationChannelName: "Missed Call",
-                  isShowCallID: false),
-              ios: IOSParams(
-                iconName: 'CallKitLogo',
-                handleType: 'generic',
-                ringtonePath: 'system_ringtone_default',
-              ),
-            );
-            await FlutterCallkitIncoming.showCallkitIncoming(callKitParams);
+            showIncomingCallScreen(context);
           }
           break;
         case CallEvent.connected:
@@ -236,13 +193,13 @@ class TwilioService {
 
   /// Show Incoming Call Screen
   void showIncomingCallScreen(BuildContext context) {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) =>
-    //         IncomingCallScreen(callerName: "GBPN Dialer Testing"),
-    //   ),
-    // );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            IncomingCallScreen(callerName: "GBPN Dialer Testing"),
+      ),
+    );
   }
 
   /// Answer the Call
