@@ -3,6 +3,10 @@ import 'dart:developer';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
+import 'package:flutter_callkit_incoming/entities/ios_params.dart';
+import 'package:flutter_callkit_incoming/entities/notification_params.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:twilio_voice/twilio_voice.dart';
 
@@ -137,12 +141,56 @@ class TwilioService {
   /// Setup listeners for Twilio events
   void _setupListeners(BuildContext context) {
     // Listen for Twilio Call Events
-    TwilioVoice.instance.callEventsListener.listen((event) {
+    TwilioVoice.instance.callEventsListener.listen((event) async {
       switch (event) {
         case CallEvent.incoming:
           log("Incoming Call detected!");
           if (context.mounted) {
-            showIncomingCallScreen(context);
+            CallKitParams callKitParams = CallKitParams(
+              id: "",
+              nameCaller: 'Hien Nguyen',
+              appName: 'Callkit',
+              avatar: 'https://i.pravatar.cc/100',
+              handle: '0123456789',
+              type: 0,
+              textAccept: 'Accept',
+              textDecline: 'Decline',
+              missedCallNotification: NotificationParams(
+                showNotification: true,
+                isShowCallback: true,
+                subtitle: 'Missed call',
+                callbackText: 'Call back',
+              ),
+              callingNotification: const NotificationParams(
+                showNotification: true,
+                isShowCallback: true,
+                subtitle: 'Calling...',
+                callbackText: 'Hang Up',
+              ),
+              duration: 30000,
+              extra: <String, dynamic>{'userId': '1a2b3c4d'},
+              headers: <String, dynamic>{
+                'apiKey': 'Abc@123!',
+                'platform': 'flutter'
+              },
+              ios: IOSParams(
+                iconName: 'CallKitLogo',
+                handleType: 'generic',
+                supportsVideo: true,
+                maximumCallGroups: 2,
+                maximumCallsPerCallGroup: 1,
+                audioSessionMode: 'default',
+                audioSessionActive: true,
+                audioSessionPreferredSampleRate: 44100.0,
+                audioSessionPreferredIOBufferDuration: 0.005,
+                supportsDTMF: true,
+                supportsHolding: true,
+                supportsGrouping: false,
+                supportsUngrouping: false,
+                ringtonePath: 'system_ringtone_default',
+              ),
+            );
+            await FlutterCallkitIncoming.showCallkitIncoming(callKitParams);
           }
           break;
         case CallEvent.connected:
