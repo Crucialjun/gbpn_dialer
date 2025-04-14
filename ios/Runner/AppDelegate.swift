@@ -45,27 +45,9 @@ import flutter_callkit_incoming
      // Handle incoming pushes
     @objc(pushRegistry:didReceiveIncomingPushWithPayload:forType:withCompletionHandler:) func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType, completion: @escaping () -> Void) {
         print("didReceiveIncomingPushWith")
-        guard type == .voIP else { return }
+        
+        self.incomingPushReceived(payload:payload)
 
-        let id = payload.dictionaryPayload["twi_call_sid"] as? String ?? "Unknown"
-        let uuid = UUID(uuidString: id) ?? UUID()
-        let nameCaller =  "Unknown Caller"
-        let handle = "Twilio Call"
-       
-
-        let data = flutter_callkit_incoming.Data(
-            id: id,
-            uuid: uuid,
-            nameCaller: nameCaller,
-            handle: handle,
-            type: 0,
-           
-          
-        )
-        SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(data, fromPushKit: true)
-      
-
-         //Make sure call completion()
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             completion()
         }

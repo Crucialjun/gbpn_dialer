@@ -1,8 +1,13 @@
+
+
+import 'dart:developer';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_callkit_incoming/entities/android_params.dart';
+import 'package:flutter_callkit_incoming/entities/call_event.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
 import 'package:flutter_callkit_incoming/entities/ios_params.dart';
 import 'package:flutter_callkit_incoming/entities/notification_params.dart';
@@ -32,6 +37,58 @@ void main() async {
   ));
 
   bool isFirstLaunch = await _checkFirstLaunch();
+  FlutterCallkitIncoming.onEvent.listen((event) async {
+    switch(event!.event){
+      case Event.actionCallIncoming:
+      log("Flutter call kit Incoming call");
+        break;
+      case Event.actionCallStart:
+      // TODO: started an outgoing call
+      // TODO: show screen calling in Flutter
+        log("Flutter call kit Start call");
+        break;
+      case Event.actionCallAccept:
+      // TODO: accepted an incoming call
+      // TODO: show screen calling in Flutter
+        log("Flutter call kit Accept call");
+        break;
+      case Event.actionCallDecline:
+      // TODO: declined an incoming call
+      log("Flutter call kit Decline call");
+        break;
+      case Event.actionCallEnded:
+      // TODO: ended an incoming/outgoing call
+        break;
+      case Event.actionCallTimeout:
+      // TODO: missed an incoming call
+        break;
+      case Event.actionCallCallback:
+      // TODO: only Android - click action `Call back` from missed call notification
+        break;
+      case Event.actionCallToggleHold:
+      // TODO: only iOS
+        break;
+      case Event.actionCallToggleMute:
+      // TODO: only iOS
+        break;
+      case Event.actionCallToggleDmtf:
+      // TODO: only iOS
+        break;
+      case Event.actionCallToggleGroup:
+      // TODO: only iOS
+        break;
+      case Event.actionCallToggleAudioSession:
+      // TODO: only iOS
+        break;
+      case Event.actionDidUpdateDevicePushTokenVoip:
+      // TODO: only iOS
+        break;
+      case Event.actionCallCustom:
+      // TODO: for custom action
+        break;
+    }
+
+  });
   runApp(MyApp(initialRoute: isFirstLaunch ? '/intro' : '/splash'));
 }
 
@@ -66,10 +123,8 @@ Future<void> _showCallkitIncoming(String uuid) async {
     ),
     ios: const IOSParams(
       iconName: "LaunchImage",
-      handleType: '',
-      supportsVideo: true,
-      maximumCallGroups: 2,
-      maximumCallsPerCallGroup: 1,
+      supportsVideo: false,
+
       audioSessionMode: 'default',
       audioSessionActive: true,
       audioSessionPreferredSampleRate: 44100.0,
@@ -78,7 +133,6 @@ Future<void> _showCallkitIncoming(String uuid) async {
       supportsHolding: true,
       supportsGrouping: false,
       supportsUngrouping: false,
-      ringtonePath: 'system_ringtone_default',
     ),
   );
   await FlutterCallkitIncoming.showCallkitIncoming(params);

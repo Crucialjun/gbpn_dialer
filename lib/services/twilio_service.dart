@@ -181,10 +181,8 @@ class TwilioService {
             ),
             ios: const IOSParams(
               iconName: "LaunchImage",
-              handleType: '',
-              supportsVideo: true,
-              maximumCallGroups: 2,
-              maximumCallsPerCallGroup: 1,
+              supportsVideo: false,
+
               audioSessionMode: 'default',
               audioSessionActive: true,
               audioSessionPreferredSampleRate: 44100.0,
@@ -193,7 +191,7 @@ class TwilioService {
               supportsHolding: true,
               supportsGrouping: false,
               supportsUngrouping: false,
-              ringtonePath: 'system_ringtone_default',
+
             ),
           );
           await FlutterCallkitIncoming.showCallkitIncoming(params);
@@ -229,7 +227,7 @@ class TwilioService {
           _playRingtone();
           break;
         default:
-          log("Other Event: $event");
+          log("Other Event: ${event.name}");
           _isPlaying = false;
       }
     });

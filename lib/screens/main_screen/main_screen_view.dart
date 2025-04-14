@@ -3,6 +3,11 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_callkit_incoming/entities/android_params.dart';
+import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
+import 'package:flutter_callkit_incoming/entities/ios_params.dart';
+import 'package:flutter_callkit_incoming/entities/notification_params.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:gbpn_dealer/screens/dialpad/active_number_reminder_dialog.dart';
 import 'package:gbpn_dealer/screens/out_going_call/out_going_call.dart';
 import 'package:gbpn_dealer/screens/permissions/permissions_block.dart';
@@ -11,6 +16,7 @@ import 'package:gbpn_dealer/services/twilio_service.dart';
 import 'package:gbpn_dealer/utils/utils.dart';
 import 'package:logger/logger.dart';
 import 'package:twilio_voice/models/call_event.dart';
+import 'package:uuid/uuid.dart';
 
 import '../contacts/contact_screen.dart';
 import '../dialpad/dialer_screen.dart';
@@ -107,7 +113,7 @@ class _MainScreenViewState extends State<MainScreenView> {
 
   /// Setup call event listeners
   void _setupCallListeners() {
-    _callEventSubscription = _twilioService.callEvents.listen((event) {
+    _callEventSubscription = _twilioService.callEvents.listen((event) async {
       if (!mounted) return;
       switch (event) {
         case CallEvent.callEnded:
@@ -122,9 +128,52 @@ class _MainScreenViewState extends State<MainScreenView> {
         case CallEvent.incoming:
           log('Incoming call received');
           Logger().i("Twillio Incoming Call Event: $event");
+          var uid = Uuid().v4();
+          Logger().i(uid);
+          final params = CallKitParams(
+            id: uid,
+            nameCaller: 'Hien Nguyen',
+            appName: 'Callkit',
+            handle: '0123456789',
+            type: 0,
+            duration: 30000,
+            textAccept: 'Accept',
+            textDecline: 'Decline',
+            missedCallNotification: const NotificationParams(
+              showNotification: true,
+              isShowCallback: true,
+              subtitle: 'Missed call',
+              callbackText: 'Call back',
+            ),
+            extra: <String, dynamic>{'userId': '1a2b3c4d'},
+            headers: <String, dynamic>{'apiKey': 'Abc@123!', 'platform': 'flutter'},
+            android: const AndroidParams(
+              isCustomNotification: true,
+
+              ringtonePath: 'system_ringtone_default',
+              backgroundColor: '#0955fa',
+
+              actionColor: '#4CAF50',
+              textColor: '#ffffff',
+            ),
+            ios: const IOSParams(
+              iconName: "LaunchImage",
+              supportsVideo: false,
+
+              audioSessionMode: 'default',
+              audioSessionActive: true,
+              audioSessionPreferredSampleRate: 44100.0,
+              audioSessionPreferredIOBufferDuration: 0.005,
+              supportsDTMF: true,
+              supportsHolding: true,
+              supportsGrouping: false,
+              supportsUngrouping: false,
+            ),
+          );
+          await FlutterCallkitIncoming.showCallkitIncoming(params);
           break;
         default:
-          break;
+
       }
     });
   }
