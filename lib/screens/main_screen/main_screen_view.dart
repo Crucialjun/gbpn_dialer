@@ -120,7 +120,7 @@ class _MainScreenViewState extends State<MainScreenView> {
           log('Call Connected');
           break;
         case CallEvent.incoming:
-          log('Incoming call');
+          log('Incoming call received');
           Logger().i("Twillio Incoming Call Event: $event");
           break;
         default:

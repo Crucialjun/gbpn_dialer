@@ -10,8 +10,10 @@ import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:gbpn_dealer/main.dart';
 import 'package:gbpn_dealer/services/firebase_options.dart';
 import 'package:gbpn_dealer/services/firebase_service.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+
 import 'routing/routes.dart';
 
 void main() async {
@@ -34,11 +36,12 @@ void main() async {
 }
 
 Future<void> _showCallkitIncoming(String uuid) async {
+  var uid = Uuid().v4();
+  Logger().i(uid);
   final params = CallKitParams(
-    id: uuid,
+    id: uid,
     nameCaller: 'Hien Nguyen',
     appName: 'Callkit',
-    avatar: 'https://i.pravatar.cc/100',
     handle: '0123456789',
     type: 0,
     duration: 30000,
@@ -54,16 +57,15 @@ Future<void> _showCallkitIncoming(String uuid) async {
     headers: <String, dynamic>{'apiKey': 'Abc@123!', 'platform': 'flutter'},
     android: const AndroidParams(
       isCustomNotification: true,
-      isShowLogo: true,
-      logoUrl: 'assets/test.png',
+
       ringtonePath: 'system_ringtone_default',
       backgroundColor: '#0955fa',
-      backgroundUrl: 'assets/test.png',
+
       actionColor: '#4CAF50',
       textColor: '#ffffff',
     ),
     ios: const IOSParams(
-      iconName: 'CallKitLogo',
+      iconName: "LaunchImage",
       handleType: '',
       supportsVideo: true,
       maximumCallGroups: 2,

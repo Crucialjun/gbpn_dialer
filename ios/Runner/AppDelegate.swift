@@ -8,7 +8,7 @@ import flutter_callkit_incoming
 
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate,PKPushRegistryDelegate {
   
 
 
@@ -21,8 +21,8 @@ import flutter_callkit_incoming
     // Register for VoIP push
         let mainQueue = DispatchQueue.main
         let voipRegistry: PKPushRegistry = PKPushRegistry(queue: mainQueue)
-        voipRegistry.delegate = self
-        voipRegistry.desiredPushTypes = [..voIP]
+      voipRegistry.delegate = self
+        voipRegistry.desiredPushTypes = [.voIP]
 
         
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
@@ -37,13 +37,13 @@ import flutter_callkit_incoming
         SwiftFlutterCallkitIncomingPlugin.sharedInstance?.setDevicePushTokenVoIP(deviceToken)
     }
 
-    func pushRegistry(_ registry: PKPushRegistry, didInvalidatePushTokenFor type: PKPushType) {
+    @objc(pushRegistry:didInvalidatePushTokenForType:) func pushRegistry(_ registry: PKPushRegistry, didInvalidatePushTokenFor type: PKPushType) {
         print("didInvalidatePushTokenFor")
         SwiftFlutterCallkitIncomingPlugin.sharedInstance?.setDevicePushTokenVoIP("")
     }
 
      // Handle incoming pushes
-    func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType, completion: @escaping () -> Void) {
+    @objc(pushRegistry:didReceiveIncomingPushWithPayload:forType:withCompletionHandler:) func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType, completion: @escaping () -> Void) {
         print("didReceiveIncomingPushWith")
         guard type == .voIP else { return }
         
