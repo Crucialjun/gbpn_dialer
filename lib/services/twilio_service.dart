@@ -11,6 +11,7 @@ import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:logger/logger.dart';
 import 'package:twilio_voice/twilio_voice.dart';
+import 'package:uuid/uuid.dart';
 
 class TwilioService {
   static final TwilioService _instance = TwilioService._internal();
@@ -156,7 +157,7 @@ class TwilioService {
           Logger().i("Twillio Call Event: $event");
           _stopRingtone();
           CallKitParams callKitParams = CallKitParams(
-            id: "",
+            id: Uuid().v4(),
             nameCaller: 'Hien Nguyen',
             appName: 'Callkit',
             avatar: 'https://i.pravatar.cc/100',
@@ -213,7 +214,7 @@ class TwilioService {
           );
           await FlutterCallkitIncoming.showCallkitIncoming(
               callKitParams); // Stop ringtone when call is connected
-         
+
           break;
         case CallEvent.callEnded:
           log("Call Ended!");
