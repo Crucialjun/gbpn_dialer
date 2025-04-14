@@ -9,7 +9,6 @@ import 'package:flutter_callkit_incoming/entities/ios_params.dart';
 import 'package:flutter_callkit_incoming/entities/notification_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_sound/flutter_sound.dart';
-import 'package:gbpn_dealer/screens/incoming_screen/incoming_call_screen.dart';
 import 'package:logger/logger.dart';
 import 'package:twilio_voice/twilio_voice.dart';
 import 'package:uuid/uuid.dart';
@@ -150,7 +149,8 @@ class TwilioService {
         case CallEvent.incoming:
           log("Incoming Call detected!");
           if (context.mounted) {
-            showIncomingCallScreen(context);
+            final uuid = Uuid().v4();
+            showNativeCallScreen(uuid, "Unknown Caller", "Unknown");
           }
           break;
         case CallEvent.connected:
@@ -191,17 +191,6 @@ class TwilioService {
     });
   }
 
-  /// Show Incoming Call Screen
-  void showIncomingCallScreen(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            IncomingCallScreen(callerName: "GBPN Dialer Testing"),
-      ),
-    );
-  }
-
   /// Answer the Call
   Future<void> answerCall() async {
     await TwilioVoice.instance.call.answer();
@@ -240,6 +229,36 @@ class TwilioService {
       log("Playing end call sound");
     } catch (e) {
       log("Error playing end call sound: $e");
+    }
+  }
+
+  /// Show native call screen using CallKit
+  Future<void> showNativeCallScreen(
+      String uuid, String callerName, String handle) async {
+    final params = CallKitParams(
+      id: uuid,
+      nameCaller: callerName,
+      handle: handle,
+      type: 0, // 0 for audio call
+      ios: IOSParams(
+        iconName: 'AppIcon',
+        supportsVideo: false,
+      ),
+      android: AndroidParams(
+        isCustomNotification: true,
+        isShowLogo: true,
+        ringtonePath: 'assets/sounds/phone-call.mp3',
+        backgroundColor: '#0955fa',
+        backgroundUrl: 'assets/images/home_background.jpg',
+        actionColor: '#4CAF50',
+      ),
+    );
+
+    try {
+      await FlutterCallkitIncoming.showCallkitIncoming(params);
+      log("Native call screen displayed");
+    } catch (e) {
+      log("Error showing native call screen: $e");
     }
   }
 
