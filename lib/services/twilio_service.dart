@@ -143,50 +143,23 @@ class TwilioService {
 
   /// Setup listeners for Twilio events
   void _setupListeners(BuildContext context) {
-    // Listen for Twilio Call Events
     TwilioVoice.instance.callEventsListener.listen((event) async {
       switch (event) {
         case CallEvent.incoming:
           log("Incoming Call detected!");
-          if (context.mounted) {
-            final uuid = Uuid().v4();
-            showNativeCallScreen(uuid, "Unknown Caller", "Unknown");
-          }
+          final uuid = Uuid().v4();
+          showNativeCallScreen(uuid, "Unknown Caller", "Unknown");
           break;
         case CallEvent.connected:
           log("Call Connected!");
-          Logger().i("Twillio Call Event: $event");
-          _stopRingtone();
-          // Stop ringtone when call is connected
-
+          // Ensure no redirection to the app when the call is connected
           break;
         case CallEvent.callEnded:
           log("Call Ended!");
-          _stopRingtone(); // Stop ringtone when call ends
-          _playEndCallSound(); // Play end call sound
-          break;
-        case CallEvent.ringing:
-          _isPlaying = true;
-          log("Phone is Ringing!");
-          _playRingtone(); // Play ringtone when phone is ringing
-          break;
-        case CallEvent.reconnecting:
-          log("Reconnecting Call...");
-          break;
-        case CallEvent.declined:
-          log("Call Declined");
-          _stopRingtone(); // Stop ringtone when call is declined
-          _playEndCallSound(); // Play end call sound when call is declined
-          break;
-        case CallEvent.speakerOn:
-        case CallEvent.speakerOff:
-          log("🔊 Speaker Event: $event");
-          if (_isCallConnected) break;
-          _playRingtone();
+          // Ensure no redirection to the app when the call ends
           break;
         default:
           log("Other Event: $event");
-          _isPlaying = false;
       }
     });
   }
@@ -194,6 +167,9 @@ class TwilioService {
   /// Answer the Call
   Future<void> answerCall() async {
     await TwilioVoice.instance.call.answer();
+    _isPlaying = false; // Stop ringtone when call is answered
+    await _stopRingtone(); // Ensure ringtone is stopped when call is answered
+    log("Call Answered!");
   }
 
   /// Decline the Call
