@@ -44,42 +44,33 @@ import flutter_callkit_incoming
 
      // Handle incoming pushes
     @objc(pushRegistry:didReceiveIncomingPushWithPayload:forType:withCompletionHandler:) func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType, completion: @escaping () -> Void) {
-        print("payload \(payload.dictionaryPayload)")
-        guard type == .voIP else {
-            print("Received non-VoIP push")
-            return
-        }
+        print("didReceiveIncomingPushWith")
+        guard type == .voIP else { return }
 
-         // 1. Extract call SID, caller ID, etc. from payload
-        if let callSID = payload.userInfo["callSID"] as? String,
-           let callerID = payload.userInfo["callerID"] as? String {
-            // 2. Create a CXCallController
-            let callController = CXCallController()
-            // 3. Report the incoming call to CallKit
-            let reportOptions = CXCallUpdateOptions()
-            reportOptions.includeCallInfo = true // Optional: Include call details
+        // Extract Twilio Voice data from the payload
+        if let dictionaryPayload = payload.dictionaryPayload as? [String: AnyObject],
+           let twilioData = dictionaryPayload["twi_message_type"] as? String, twilioData == "twilio.voice" {
 
-            let update = CXCallUpdate(handle: CXHandle(type: .phoneNumber, value: callerID),
-                                     connection: nil,
-                                     callInfo: CXCallInfo(),
-                                     localizedCallInfo: "Incoming call from \(callerID)",
-                                     options: reportOptions)
-            // 4. Report the call
-            let reportCallRequest = CXReportCallRequest(callUUID: UUID(), update: update)
-            callController.reportCall(with: reportCallRequest) { error in
-                if let error = error {
-                    print("Error reporting call: \(error)")
-                } else {
-                    print("Call reported to CallKit successfully")
-                }
+            // Handle the Twilio Voice push notification
+            if let callInvite = dictionaryPayload["twi_call_sid"] as? String {
+                print("Incoming call with SID: \(callInvite)")
+                // Notify the app or show a call UI
+                // Example: Post a notification or update the UI
+                
+                // Announce the call using SwiftFlutterCallkitIncomingPlugin
+                let callData: [String: Any] = [
+                    "id": callInvite, // Unique call ID
+                    "nameCaller": "Unknown Caller", // Replace with caller's name if available
+                    "handle": "Twilio Call", // Replace with caller's number or identifier
+                    "type": 0, // 0 for audio call, 1 for video call
+                    "extra": ["info": "additional data"], // Optional extra data
+                    "ios": ["iconName": "AppIcon"] // Optional iOS-specific data
+                ]
+                SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(callData)
             }
         }
-    }
 
-        // Ensure completion is called
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            completion()
-        }
+        completion()
     }
 
 }
