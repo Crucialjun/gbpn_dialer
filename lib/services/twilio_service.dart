@@ -148,7 +148,24 @@ class TwilioService {
         case CallEvent.incoming:
           log("Incoming Call detected!");
           final uuid = Uuid().v4();
-          showNativeCallScreen(uuid, "Unknown Caller", "Unknown");
+          final params = CallKitParams(
+            id: uuid,
+            nameCaller: "Unknown Caller",
+            handle: "Unknown",
+            type: 0, // 0 for audio call
+            ios: IOSParams(
+              iconName: 'AppIcon',
+              supportsVideo: false,
+            ),
+            android: AndroidParams(
+              isCustomNotification: true,
+              isShowLogo: true,
+              ringtonePath: 'assets/sounds/phone-call.mp3',
+              backgroundColor: '#0955fa',
+              actionColor: '#4CAF50',
+            ),
+          );
+          await FlutterCallkitIncoming.showCallkitIncoming(params);
           break;
         case CallEvent.connected:
           log("Call Connected!");

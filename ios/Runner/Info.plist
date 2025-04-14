@@ -28,17 +28,14 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>NSMicrophoneUsageDescription</key>
-  <string>We need access to your microphone for making calls</string>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>We need access to your local network for making calls</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+  <string>We need access to Bluetooth for audio devices during calls.</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>We need access to the microphone for calls.</string>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>audio</string>
-		<string>fetch</string>
-		<string>processing</string>
-		<string>remote-notification</string>
 		<string>voip</string>
+		<string>audio</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
