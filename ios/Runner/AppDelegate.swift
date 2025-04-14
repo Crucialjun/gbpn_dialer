@@ -47,30 +47,28 @@ import flutter_callkit_incoming
         print("didReceiveIncomingPushWith")
         guard type == .voIP else { return }
 
-        // Extract Twilio Voice data from the payload
-        if let dictionaryPayload = payload.dictionaryPayload as? [String: AnyObject],
-           let twilioData = dictionaryPayload["twi_message_type"] as? String, twilioData == "twilio.voice" {
+        let id = payload.dictionaryPayload["twi_call_sid"] as? String ?? "Unknown"
+        let uuid = UUID(uuidString: id) ?? UUID()
+        let nameCaller =  "Unknown Caller"
+        let handle = "Twilio Call"
+       
 
-            // Handle the Twilio Voice push notification
-            if let callInvite = dictionaryPayload["twi_call_sid"] as? String {
-                print("Incoming call with SID: \(callInvite)")
-                // Notify the app or show a call UI
-                // Example: Post a notification or update the UI
-                
-                // Announce the call using SwiftFlutterCallkitIncomingPlugin
-                let callData: [String: Any] = [
-                    "id": callInvite, // Unique call ID
-                    "nameCaller": "Unknown Caller", // Replace with caller's name if available
-                    "handle": "Twilio Call", // Replace with caller's number or identifier
-                    "type": 0, // 0 for audio call, 1 for video call
-                    "extra": ["info": "additional data"], // Optional extra data
-                    "ios": ["iconName": "AppIcon"] // Optional iOS-specific data
-                ]
-                SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(callData)
-            }
+        let data = flutter_callkit_incoming.Data(
+            id: id,
+            uuid: uuid,
+            nameCaller: nameCaller,
+            handle: handle,
+            type: 0,
+           
+          
+        )
+        SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(data, fromPushKit: true)
+      
+
+         //Make sure call completion()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            completion()
         }
-
-        completion()
     }
 
 }
